@@ -16,3 +16,32 @@ export const eventSeverityColors: Record<GameEventSeverity, string> = {
   warning: 'text-amber-400',
   critical: 'text-rose-400'
 }
+
+export interface SeverityStyle {
+  border: string
+  glow: string
+  icon: string
+}
+
+export const eventSeverityStyles: Record<GameEventSeverity, SeverityStyle> = {
+  info: {
+    border: 'border-cyan-500/50',
+    glow: 'shadow-cyan-500/20',
+    icon: 'text-cyan-400'
+  },
+  success: {
+    border: 'border-emerald-500/50',
+    glow: 'shadow-emerald-500/20',
+    icon: 'text-emerald-400'
+  },
+  warning: {
+    border: 'border-amber-500/50',
+    glow: 'shadow-amber-500/20',
+    icon: 'text-amber-400'
+  },
+  critical: {
+    border: 'border-rose-500/50',
+    glow: 'shadow-rose-500/20',
+    icon: 'text-rose-400'
+  }
+}

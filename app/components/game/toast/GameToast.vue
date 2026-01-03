@@ -12,41 +12,21 @@ const emit = defineEmits<{
 const { t } = useI18n()
 
 const icon = computed(() => eventTypeIcons[props.toast.event.type])
+const severityStyles = computed(() => eventSeverityStyles[props.toast.event.severity])
 
-const defaultStyle = {
-  border: 'border-cyan-500/50',
-  glow: 'shadow-cyan-500/20',
-  icon: 'text-cyan-400'
+// Translate param values that are i18n keys (e.g. 'events.values.victory' -> 'Sieg')
+const translateParams = (params?: Record<string, string | number>): Record<string, string | number> => {
+  if (!params) return {}
+  return Object.fromEntries(
+    Object.entries(params).map(([key, value]) => [
+      key,
+      typeof value === 'string' && value.startsWith('events.') ? t(value) : value
+    ])
+  )
 }
 
-const severityStyles = computed(() => {
-  const styles: Record<string, { border: string, glow: string, icon: string }> = {
-    info: {
-      border: 'border-cyan-500/50',
-      glow: 'shadow-cyan-500/20',
-      icon: 'text-cyan-400'
-    },
-    success: {
-      border: 'border-emerald-500/50',
-      glow: 'shadow-emerald-500/20',
-      icon: 'text-emerald-400'
-    },
-    warning: {
-      border: 'border-amber-500/50',
-      glow: 'shadow-amber-500/20',
-      icon: 'text-amber-400'
-    },
-    critical: {
-      border: 'border-rose-500/50',
-      glow: 'shadow-rose-500/20',
-      icon: 'text-rose-400'
-    }
-  }
-  return styles[props.toast.event.severity] ?? defaultStyle
-})
-
-const title = computed(() => t(props.toast.event.titleKey, props.toast.event.titleParams ?? {}))
-const description = computed(() => t(props.toast.event.descriptionKey, props.toast.event.descriptionParams ?? {}))
+const title = computed(() => t(props.toast.event.titleKey, translateParams(props.toast.event.titleParams)))
+const description = computed(() => t(props.toast.event.descriptionKey, translateParams(props.toast.event.descriptionParams)))
 
 // Progress bar for auto-dismiss toasts
 const progress = ref(100)

@@ -13,12 +13,12 @@ const expandedEvents = ref<Set<string>>(new Set())
 
 const filterOptions = computed(() => [
   { key: 'all' as const, label: t('game.event-log.filters.all'), icon: 'i-lucide-list' },
-  { key: 'combat' as const, label: t('game.event-log.filters.combat'), icon: 'i-lucide-swords' },
-  { key: 'research-complete' as const, label: t('game.event-log.filters.research'), icon: 'i-lucide-flask-conical' },
-  { key: 'building-complete' as const, label: t('game.event-log.filters.buildings'), icon: 'i-lucide-building' },
-  { key: 'ship-complete' as const, label: t('game.event-log.filters.ships'), icon: 'i-lucide-rocket' },
-  { key: 'army-arrived' as const, label: t('game.event-log.filters.fleets'), icon: 'i-lucide-navigation' },
-  { key: 'discovery' as const, label: t('game.event-log.filters.discovery'), icon: 'i-lucide-compass' }
+  { key: 'combat' as const, label: t('game.event-log.filters.combat'), icon: eventTypeIcons.combat },
+  { key: 'research-complete' as const, label: t('game.event-log.filters.research'), icon: eventTypeIcons['research-complete'] },
+  { key: 'building-complete' as const, label: t('game.event-log.filters.buildings'), icon: eventTypeIcons['building-complete'] },
+  { key: 'ship-complete' as const, label: t('game.event-log.filters.ships'), icon: eventTypeIcons['ship-complete'] },
+  { key: 'army-arrived' as const, label: t('game.event-log.filters.fleets'), icon: eventTypeIcons['army-arrived'] },
+  { key: 'discovery' as const, label: t('game.event-log.filters.discovery'), icon: eventTypeIcons.discovery }
 ])
 
 const toggleExpanded = (eventId: string) => {

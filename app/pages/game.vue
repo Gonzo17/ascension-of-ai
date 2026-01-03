@@ -85,7 +85,13 @@ onMounted(() => {
       titleKey: 'events.types.research-complete.title',
       titleParams: { name: 'Plasma Drives' },
       descriptionKey: 'events.types.research-complete.description',
-      descriptionParams: { location: 'Aurora Prime' }
+      descriptionParams: { location: 'Aurora Prime' },
+      details: [
+        { labelKey: 'events.details.research-time', value: '3', valueParams: { count: 3 }, icon: 'i-lucide-clock' },
+        { labelKey: 'events.details.unlocks', value: 'Advanced Thrusters', icon: 'i-lucide-unlock' }
+      ],
+      relatedEntityId: 'p-aurora',
+      relatedEntityType: 'planet'
     })
   }, 500)
 
@@ -97,7 +103,13 @@ onMounted(() => {
       titleKey: 'events.types.combat.title',
       titleParams: { location: 'Nadir Gate' },
       descriptionKey: 'events.types.combat.description',
-      descriptionParams: { outcome: 'events.values.victory' }
+      descriptionParams: { outcome: 'events.values.victory' },
+      details: [
+        { labelKey: 'events.details.enemy-losses', value: '8', valueParams: { count: 8 }, icon: 'i-lucide-skull' },
+        { labelKey: 'events.details.our-losses', value: '2', valueParams: { count: 2 }, icon: 'i-lucide-heart-crack' }
+      ],
+      relatedEntityId: 's-nadir',
+      relatedEntityType: 'system'
     })
   }, 800)
 
@@ -109,7 +121,11 @@ onMounted(() => {
       titleKey: 'events.types.discovery.title',
       titleParams: {},
       descriptionKey: 'events.types.discovery.description',
-      descriptionParams: { name: 'Omega Nebula' }
+      descriptionParams: { name: 'Omega Nebula' },
+      details: [
+        { labelKey: 'events.details.system-name', value: 'Omega Nebula', icon: 'i-lucide-star' },
+        { labelKey: 'events.details.intel-level', value: 'Low', icon: 'i-lucide-eye' }
+      ]
     })
   }, 2500)
 })
