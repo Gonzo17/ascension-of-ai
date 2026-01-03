@@ -1,4 +1,7 @@
-import type { GameEvent, GameEventFilter } from '~~/shared/types/events'
+import type { GameEvent, GameEventFilter, GameToast } from '~~/shared/types/events'
+
+const MAX_TOASTS = 3
+const DEFAULT_TOAST_DURATION = 5000
 
 export const useEventLogStore = defineStore('eventLog', () => {
   // State
@@ -6,6 +9,10 @@ export const useEventLogStore = defineStore('eventLog', () => {
   const isOpen = ref(false)
   const activeFilter = ref<GameEventFilter>('all')
   const showOnlyUnread = ref(false)
+
+  // Toast State
+  const toasts = ref<GameToast[]>([])
+  const highlightedEventId = ref<string | null>(null)
 
   // Getters
   const unreadCount = computed(() => events.value.filter(e => !e.read).length)
@@ -46,7 +53,10 @@ export const useEventLogStore = defineStore('eventLog', () => {
   })
 
   // Actions
-  const addEvent = (event: Omit<GameEvent, 'id' | 'timestamp' | 'read'>) => {
+  const addEvent = (
+    event: Omit<GameEvent, 'id' | 'timestamp' | 'read'>,
+    options: { showToast?: boolean, toastDuration?: number } = {}
+  ) => {
     const newEvent: GameEvent = {
       ...event,
       id: `evt-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
@@ -54,7 +64,87 @@ export const useEventLogStore = defineStore('eventLog', () => {
       read: false
     }
     events.value.unshift(newEvent)
+
+    // Show toast if enabled (default: true)
+    const shouldShowToast = options.showToast ?? event.showToast ?? true
+    if (shouldShowToast) {
+      createToast(newEvent, options.toastDuration)
+    }
+
     return newEvent
+  }
+
+  // Toast Actions
+  const createToast = (event: GameEvent, duration?: number) => {
+    // Determine if toast requires manual dismiss based on severity
+    const requiresDismiss = event.severity === 'warning' || event.severity === 'critical'
+    const toastDuration = requiresDismiss ? 0 : (duration ?? DEFAULT_TOAST_DURATION)
+
+    const toast: GameToast = {
+      id: `toast-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+      eventId: event.id,
+      event,
+      duration: toastDuration,
+      requiresDismiss,
+      createdAt: Date.now()
+    }
+
+    // Add to beginning (newest first for visual stacking)
+    toasts.value.unshift(toast)
+
+    // Remove oldest if exceeding max
+    if (toasts.value.length > MAX_TOASTS) {
+      toasts.value.pop()
+    }
+
+    // Auto-dismiss after duration (if not requiring manual dismiss)
+    if (!requiresDismiss && toastDuration > 0) {
+      setTimeout(() => {
+        dismissToast(toast.id)
+      }, toastDuration)
+    }
+
+    return toast
+  }
+
+  const dismissToast = (toastId: string) => {
+    const index = toasts.value.findIndex(t => t.id === toastId)
+    if (index !== -1) {
+      toasts.value.splice(index, 1)
+    }
+  }
+
+  const dismissAllToasts = () => {
+    toasts.value = []
+  }
+
+  // Opens event log with correct filter and highlights the event
+  const openToEvent = (eventId: string) => {
+    const event = events.value.find(e => e.id === eventId)
+    if (event) {
+      // Set filter to show this event type
+      activeFilter.value = event.type
+      showOnlyUnread.value = false
+
+      // Open the event log
+      isOpen.value = true
+
+      // Highlight the event (will blink 3 times)
+      highlightedEventId.value = eventId
+
+      // Clear highlight after animation
+      setTimeout(() => {
+        highlightedEventId.value = null
+      }, 1500) // 3 blinks at 500ms each
+    }
+  }
+
+  const handleToastClick = (toastId: string) => {
+    const toast = toasts.value.find(t => t.id === toastId)
+    if (toast) {
+      openToEvent(toast.eventId)
+      dismissToast(toastId)
+    }
   }
 
   const markAsRead = (id: string) => {
@@ -197,6 +287,8 @@ export const useEventLogStore = defineStore('eventLog', () => {
     isOpen,
     activeFilter,
     showOnlyUnread,
+    toasts,
+    highlightedEventId,
     // Getters
     unreadCount,
     unreadCountByType,
@@ -212,6 +304,12 @@ export const useEventLogStore = defineStore('eventLog', () => {
     toggle,
     setFilter,
     toggleUnreadOnly,
-    initMockData
+    initMockData,
+    // Toast Actions
+    createToast,
+    dismissToast,
+    dismissAllToasts,
+    openToEvent,
+    handleToastClick
   }
 })

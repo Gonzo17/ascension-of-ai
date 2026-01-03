@@ -34,3 +34,12 @@ export interface GameEvent {
 }
 
 export type GameEventFilter = GameEventType | 'all'
+
+export interface GameToast {
+  id: string
+  eventId: string
+  event: GameEvent
+  duration: number
+  requiresDismiss: boolean
+  createdAt: number
+}

@@ -1,5 +1,8 @@
 <template>
   <div class="min-h-screen bg-slate-950 text-slate-100">
+    <!-- Toast Container -->
+    <GameToastContainer />
+
     <GameTopBar
       :year="year"
       :unread-event-count="eventLogStore.unreadCount"
@@ -72,6 +75,43 @@ onMounted(() => {
   if (eventLogStore.events.length === 0) {
     eventLogStore.initMockData(year.value)
   }
+
+  // TODO: Remove - Demo toasts for testing
+  setTimeout(() => {
+    eventLogStore.addEvent({
+      type: 'research-complete',
+      severity: 'success',
+      year: year.value,
+      titleKey: 'events.types.research-complete.title',
+      titleParams: { name: 'Plasma Drives' },
+      descriptionKey: 'events.types.research-complete.description',
+      descriptionParams: { location: 'Aurora Prime' }
+    })
+  }, 500)
+
+  setTimeout(() => {
+    eventLogStore.addEvent({
+      type: 'combat',
+      severity: 'warning',
+      year: year.value,
+      titleKey: 'events.types.combat.title',
+      titleParams: { location: 'Nadir Gate' },
+      descriptionKey: 'events.types.combat.description',
+      descriptionParams: { outcome: 'events.values.victory' }
+    })
+  }, 800)
+
+  setTimeout(() => {
+    eventLogStore.addEvent({
+      type: 'discovery',
+      severity: 'info',
+      year: year.value,
+      titleKey: 'events.types.discovery.title',
+      titleParams: {},
+      descriptionKey: 'events.types.discovery.description',
+      descriptionParams: { name: 'Omega Nebula' }
+    })
+  }, 2500)
 })
 
 const handleEventNavigate = (entityType: string, entityId: string) => {

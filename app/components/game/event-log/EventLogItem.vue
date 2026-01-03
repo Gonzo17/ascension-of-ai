@@ -12,9 +12,11 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+const store = useEventLogStore()
 
 const icon = computed(() => eventTypeIcons[props.item.type])
 const severityColor = computed(() => eventSeverityColors[props.item.severity])
+const isHighlighted = computed(() => store.highlightedEventId === props.item.id)
 
 // Translate title with params
 const title = computed(() => t(props.item.titleKey, props.item.titleParams ?? {}))
@@ -38,7 +40,8 @@ const translateValue = (value: string, params?: Record<string, string | number>)
     :class="[
       item.read
         ? 'border-slate-700/50 bg-slate-800/30'
-        : 'border-l-2 border-l-cyan-500 border-slate-700/50 bg-slate-800/50'
+        : 'border-l-2 border-l-cyan-500 border-slate-700/50 bg-slate-800/50',
+      isHighlighted && 'animate-highlight'
     ]"
   >
     <!-- Item Header (clickable) -->
@@ -108,3 +111,20 @@ const translateValue = (value: string, params?: Record<string, string | number>)
     </div>
   </div>
 </template>
+
+<style scoped>
+@keyframes highlight {
+  0%, 100% {
+    background-color: rgb(30 41 59 / 0.5);
+    box-shadow: none;
+  }
+  50% {
+    background-color: rgb(6 182 212 / 0.2);
+    box-shadow: 0 0 20px rgb(6 182 212 / 0.3);
+  }
+}
+
+.animate-highlight {
+  animation: highlight 0.5s ease-in-out 3;
+}
+</style>
