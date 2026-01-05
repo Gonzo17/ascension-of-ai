@@ -112,7 +112,7 @@ const emit = defineEmits<{
         <UButton
           color="primary"
           variant="solid"
-          icon="i-lucide-building-2"
+          :icon="gameIcons.building"
           class="flex-1"
         >
           {{ $t('game.selection.build') }}
@@ -120,7 +120,7 @@ const emit = defineEmits<{
         <UButton
           color="neutral"
           variant="soft"
-          icon="i-lucide-ship"
+          :icon="gameIcons.shipyard"
           class="flex-1"
         >
           {{ $t('game.selection.shipyard-action') }}
@@ -160,7 +160,7 @@ const emit = defineEmits<{
         <UButton
           color="primary"
           variant="solid"
-          icon="i-lucide-navigation"
+          :icon="gameIcons.movement"
           class="flex-1"
         >
           {{ $t('game.selection.issue-move-order') }}
@@ -168,7 +168,7 @@ const emit = defineEmits<{
         <UButton
           color="neutral"
           variant="soft"
-          icon="i-lucide-rocket"
+          :icon="gameIcons.ship"
           class="flex-1"
         >
           {{ $t('game.selection.reinforce') }}
