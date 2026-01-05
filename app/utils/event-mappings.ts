@@ -1,13 +1,24 @@
-import type { GameEventType, GameEventSeverity } from '~~/shared/types/events'
+/** Centralized icon mapping for game concepts - use these across the UI for consistency */
+export const gameIcons = {
+  research: 'i-lucide-flask-conical',
+  building: 'i-lucide-building',
+  ship: 'i-lucide-rocket',
+  shipyard: 'i-lucide-ship',
+  movement: 'i-lucide-navigation',
+  combat: 'i-lucide-swords',
+  discovery: 'i-lucide-compass',
+  diplomatic: 'i-lucide-handshake',
+  planet: 'i-lucide-earth'
+} as const
 
 export const eventTypeIcons: Record<GameEventType, string> = {
-  'research-complete': 'i-lucide-flask-conical',
-  'building-complete': 'i-lucide-building',
-  'ship-complete': 'i-lucide-rocket',
-  'army-arrived': 'i-lucide-navigation',
-  'combat': 'i-lucide-swords',
-  'discovery': 'i-lucide-compass',
-  'diplomatic': 'i-lucide-handshake'
+  'research-complete': gameIcons.research,
+  'building-complete': gameIcons.building,
+  'ship-complete': gameIcons.ship,
+  'army-arrived': gameIcons.movement,
+  'combat': gameIcons.combat,
+  'discovery': gameIcons.discovery,
+  'diplomatic': gameIcons.diplomatic
 }
 
 export const eventSeverityColors: Record<GameEventSeverity, string> = {

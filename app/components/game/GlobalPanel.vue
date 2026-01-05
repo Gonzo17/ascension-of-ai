@@ -61,7 +61,7 @@ const { locale } = useI18n()
         <UIcon
           size="24"
           class="text-secondary"
-          name="i-lucide-flask-conical"
+          :name="gameIcons.research"
         />
 
         <!-- Progress background -->
@@ -89,7 +89,7 @@ const { locale } = useI18n()
       <UCollapsible class="flex flex-col gap-2 w-full">
         <UButton
           :label="$t('game.navigation.planets', { count: props.planets.length })"
-          icon="i-lucide-earth"
+          :icon="gameIcons.planet"
           color="neutral"
           variant="ghost"
           trailing-icon="i-lucide-chevron-down"
@@ -131,7 +131,7 @@ const { locale } = useI18n()
       <UCollapsible class="flex flex-col gap-2 w-full">
         <UButton
           :label="$t('game.navigation.ships', { count: props.armies.length })"
-          icon="i-lucide-rocket"
+          :icon="gameIcons.ship"
           color="neutral"
           variant="ghost"
           trailing-icon="i-lucide-chevron-down"

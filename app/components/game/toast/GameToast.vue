@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { GameToast } from '~~/shared/types/events'
-
 const props = defineProps<{
   toast: GameToast
 }>()
@@ -10,20 +8,10 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+const { translateParams } = useTranslateParams()
 
 const icon = computed(() => eventTypeIcons[props.toast.event.type])
 const severityStyles = computed(() => eventSeverityStyles[props.toast.event.severity])
-
-// Translate param values that are i18n keys (e.g. 'events.values.victory' -> 'Sieg')
-const translateParams = (params?: Record<string, string | number>): Record<string, string | number> => {
-  if (!params) return {}
-  return Object.fromEntries(
-    Object.entries(params).map(([key, value]) => [
-      key,
-      typeof value === 'string' && value.startsWith('events.') ? t(value) : value
-    ])
-  )
-}
 
 const title = computed(() => t(props.toast.event.titleKey, translateParams(props.toast.event.titleParams)))
 const description = computed(() => t(props.toast.event.descriptionKey, translateParams(props.toast.event.descriptionParams)))

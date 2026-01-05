@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { GameEventFilter } from '~~/shared/types/events'
-
 const emit = defineEmits<{
   (e: 'close'): void
   (e: 'navigate-to', entityType: string, entityId: string): void
@@ -17,7 +15,7 @@ const filterOptions = computed(() => [
   { key: 'research-complete' as const, label: t('game.event-log.filters.research'), icon: eventTypeIcons['research-complete'] },
   { key: 'building-complete' as const, label: t('game.event-log.filters.buildings'), icon: eventTypeIcons['building-complete'] },
   { key: 'ship-complete' as const, label: t('game.event-log.filters.ships'), icon: eventTypeIcons['ship-complete'] },
-  { key: 'army-arrived' as const, label: t('game.event-log.filters.fleets'), icon: eventTypeIcons['army-arrived'] },
+  { key: 'army-arrived' as const, label: t('game.event-log.filters.movements'), icon: eventTypeIcons['army-arrived'] },
   { key: 'discovery' as const, label: t('game.event-log.filters.discovery'), icon: eventTypeIcons.discovery }
 ])
 
@@ -47,7 +45,7 @@ const getUnreadCount = (filterKey: GameEventFilter): number => {
     />
 
     <!-- Panel -->
-    <div class="relative w-full max-w-2xl max-h-[calc(100%-4rem)] flex flex-col rounded-lg border border-cyan-500/30 bg-slate-900/95 shadow-lg shadow-cyan-500/10 overflow-hidden">
+    <div class="relative w-full max-w-3xl max-h-[calc(100%-4rem)] flex flex-col rounded-lg border border-cyan-500/30 bg-slate-900/95 shadow-lg shadow-cyan-500/10 overflow-hidden">
       <!-- Header -->
       <div class="flex items-center justify-between px-5 py-4 border-b border-slate-700/50">
         <div class="flex items-center gap-3">
@@ -81,7 +79,7 @@ const getUnreadCount = (filterKey: GameEventFilter): number => {
       </div>
 
       <!-- Filter Bar -->
-      <div class="flex items-center gap-2 px-5 py-3 border-b border-slate-700/50 overflow-x-auto">
+      <div class="flex items-center gap-2 px-5 py-3 border-b border-slate-700/50 overflow-x-auto overflow-y-hidden">
         <div
           v-for="filter in filterOptions"
           :key="filter.key"

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { GameEvent } from '~~/shared/types/events'
-
 const props = defineProps<{
   item: GameEvent
   expanded: boolean
@@ -13,32 +11,14 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 const store = useEventLogStore()
+const { translateParams, translateValue } = useTranslateParams()
 
 const icon = computed(() => eventTypeIcons[props.item.type])
 const severityColor = computed(() => eventSeverityColors[props.item.severity])
 const isHighlighted = computed(() => store.highlightedEventId === props.item.id)
 
-// Translate param values that are i18n keys (e.g. 'events.values.victory' -> 'Sieg')
-const translateParams = (params?: Record<string, string | number>): Record<string, string | number> => {
-  if (!params) return {}
-  return Object.fromEntries(
-    Object.entries(params).map(([key, value]) => [
-      key,
-      typeof value === 'string' && value.startsWith('events.') ? t(value) : value
-    ])
-  )
-}
-
 const title = computed(() => t(props.item.titleKey, translateParams(props.item.titleParams)))
 const description = computed(() => t(props.item.descriptionKey, translateParams(props.item.descriptionParams)))
-
-// Helper to translate detail values (some might be i18n keys)
-const translateValue = (value: string, params?: Record<string, string | number>): string => {
-  if (value.startsWith('events.')) {
-    return t(value, params ?? {})
-  }
-  return value
-}
 </script>
 
 <template>
