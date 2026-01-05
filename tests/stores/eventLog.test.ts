@@ -1,7 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
-import { useEventLogStore } from '../../app/stores/eventLog'
-import type { GameEventType, GameEventSeverity } from '../../shared/types/events'
 
 const createMockEvent = (overrides: Partial<{
   type: GameEventType

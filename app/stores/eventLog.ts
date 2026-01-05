@@ -1,5 +1,3 @@
-import type { GameEvent, GameEventFilter, GameToast } from '~~/shared/types/events'
-
 const MAX_TOASTS = 3
 const DEFAULT_TOAST_DURATION = 5000
 
