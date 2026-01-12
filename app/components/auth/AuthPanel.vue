@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AuthFormField, FormSubmitEvent } from '@nuxt/ui'
+import type { AuthFormField, FormSubmitEvent, ButtonProps } from '@nuxt/ui'
 
 const props = withDefaults(defineProps<{
   redirectPath?: string
@@ -9,6 +9,7 @@ const props = withDefaults(defineProps<{
 
 const supabase = useSupabaseClient()
 const toast = useToast()
+const { t } = useI18n()
 
 const sign = ref<'in' | 'up'>('in')
 
@@ -28,29 +29,29 @@ const aiNames = [
   'Vega'
 ]
 
-const baseFields: AuthFormField[] = [{
+const baseFields = (t: (key: string) => string): AuthFormField[] => [{
   name: 'email',
   type: 'text' as const,
-  label: 'Email',
-  placeholder: 'Enter your email',
+  label: t('auth.email-label'),
+  placeholder: t('auth.email-placeholder'),
   required: true
 }, {
   name: 'password',
-  label: 'Password',
+  label: t('auth.password-label'),
   type: 'password' as const,
-  placeholder: 'Enter your password'
+  placeholder: t('auth.password-placeholder')
 }]
 
 const fields = computed<AuthFormField[]>(() => {
   if (sign.value === 'up') {
-    return [...baseFields, {
+    return [...baseFields(t), {
       name: 'username',
-      label: 'Ingame-Name (optional)',
+      label: t('auth.username-label'),
       type: 'text' as const,
-      placeholder: 'z.B. Orion-317'
+      placeholder: t('auth.username-placeholder')
     }]
   }
-  return baseFields
+  return baseFields(t)
 })
 
 const randomSuffix = () => Math.floor(100 + Math.random() * 900)
@@ -97,22 +98,7 @@ const ensureProfile = async (userId: string, desired?: string | null) => {
     .upsert({ id: userId, username: nameToUse })
 }
 
-const providers = [{
-  label: 'As Guest',
-  icon: 'i-lucide-user-circle',
-  onClick: async () => {
-    const { error, data } = await supabase.auth.signInAnonymously()
-    if (error) {
-      displayError(error)
-      return
-    }
-
-    const uid = data?.user?.id
-    if (uid) await ensureProfile(uid, undefined)
-
-    await navigateTo(props.redirectPath)
-  }
-}]
+const providers: ButtonProps[] = []
 
 const signIn = async (email: string, password: string, username?: string | null) => {
   const { error } = await supabase.auth.signInWithPassword({
@@ -145,7 +131,7 @@ const signUp = async (email: string, password: string, username?: string | null)
   if (error) displayError(error)
   else {
     toast.add({
-      title: 'Sign up successful',
+      title: t('auth.signup-success'),
       icon: 'i-lucide-check-circle',
       color: 'success'
     })
@@ -164,33 +150,60 @@ const onSubmit = async (payload: FormSubmitEvent<{ email: string, password: stri
 
 const displayError = (error: { message: string }) => {
   toast.add({
-    title: 'Error',
+    title: t('auth.error-title'),
     description: error.message,
     icon: 'i-lucide-alert-circle',
     color: 'error'
   })
+}
+
+const signInAsGuest = async () => {
+  const { error, data } = await supabase.auth.signInAnonymously()
+  if (error) {
+    displayError(error)
+    return
+  }
+
+  const uid = data?.user?.id
+  if (uid) await ensureProfile(uid, undefined)
+
+  await navigateTo(props.redirectPath)
 }
 </script>
 
 <template>
   <div class="space-y-3">
     <UAuthForm
-      :title="sign === 'in' ? 'Login' : 'Sign up'"
+      :title="sign === 'in' ? t('auth.login-title') : t('auth.signup-title')"
       icon="i-lucide-user"
       :fields="fields"
       :providers="providers"
+      :submit="{
+        label: t('auth.submit-label')
+      }"
       @submit="onSubmit"
     >
       <template #description>
-        {{ sign === 'up' ? 'Already have an account?' : 'Don\'t have an account?' }}
+        {{ sign === 'up' ? t('auth.already-have-account') : t('auth.dont-have-account') }}
         <UButton
           variant="link"
           class="p-0"
           @click="sign = sign === 'up' ? 'in' : 'up'"
         >
-          {{ sign === 'in' ? 'Sign up' : 'Sign in' }}
+          {{ sign === 'in' ? t('auth.toggle-signup') : t('auth.toggle-signin') }}
         </UButton>.
       </template>
     </UAuthForm>
+
+    <!-- Guest Login Button - Only in Sign In Mode -->
+    <UButton
+      v-if="sign === 'in'"
+      variant="soft"
+      color="neutral"
+      class="w-full justify-center"
+      @click="signInAsGuest"
+    >
+      {{ t('auth.guest-button') }}
+    </UButton>
   </div>
 </template>

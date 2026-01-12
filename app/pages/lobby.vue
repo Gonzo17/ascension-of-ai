@@ -1,4 +1,21 @@
 <script setup lang="ts">
+const { t } = useI18n()
+const supabase = useSupabaseClient()
+const user = useSupabaseUser()
+const toast = useToast()
+
+const lobbies = ref<Lobby[]>([])
+const members = ref<LobbyPlayer[]>([])
+const myLobbyId = ref<string | null>(null)
+const lobbyName = ref('')
+const loading = ref(false)
+const creating = ref(false)
+const joining = ref<string | null>(null)
+const playerCounts = ref<Record<string, number>>({})
+const hostnames = ref<Record<string, string>>({})
+const userIdRef = ref<string | null>(null)
+let channel: ReturnType<typeof supabase.channel> | null = null
+
 type LobbyPlayer = {
   user_id: string
   is_host?: boolean | null
@@ -19,28 +36,12 @@ type Lobby = {
   lobby_players?: { count: number | null }[] | null
 }
 
-const supabase = useSupabaseClient()
-const user = useSupabaseUser()
-const toast = useToast()
-
-const lobbies = ref<Lobby[]>([])
-const members = ref<LobbyPlayer[]>([])
-const myLobbyId = ref<string | null>(null)
-const lobbyName = ref('')
-const loading = ref(false)
-const creating = ref(false)
-const joining = ref<string | null>(null)
-const playerCounts = ref<Record<string, number>>({})
-const hostnames = ref<Record<string, string>>({})
-const userIdRef = ref<string | null>(null)
-let channel: ReturnType<typeof supabase.channel> | null = null
-
 const hostNameFor = (id: string | null | undefined) => {
-  if (!id) return 'Commander'
+  if (!id) return t('lobby.commander')
   const fromMap = hostnames.value[id]
   if (fromMap) return fromMap
   const fromMembers = members.value.find(p => p.user_id === id)?.profiles?.username
-  return fromMembers || 'Commander'
+  return fromMembers || t('lobby.commander')
 }
 
 const currentLobby = computed(() => lobbies.value.find(lobby => lobby.id === myLobbyId.value) ?? null)
@@ -71,12 +72,12 @@ const signOut = async () => {
   myLobbyId.value = null
 
   toast.add({
-    title: 'Abgemeldet',
+    title: t('lobby.logged-out'),
     icon: 'i-lucide-log-out',
     color: 'neutral'
   })
 
-  await navigateTo('/login')
+  await navigateTo('/')
 }
 
 watchEffect(() => {
@@ -99,7 +100,7 @@ const refreshLobbies = async () => {
   if (error) {
     displayError(error)
   } else if (data) {
-    lobbies.value = data
+    lobbies.value = data as unknown as Lobby[]
     playerCounts.value = Object.fromEntries(data.map(lobby => [lobby.id, lobby.lobby_players?.[0]?.count ?? 0]))
 
     const { data: membershipData, error: membershipError } = await supabase
@@ -124,7 +125,7 @@ const refreshLobbies = async () => {
         .in('id', hostIds)
 
       if (profilesError) displayError(profilesError)
-      else hostnames.value = Object.fromEntries(profilesData?.map(p => [p.id, p.username || 'Unbekannt']) || [])
+      else hostnames.value = Object.fromEntries(profilesData?.map(p => [p.id, p.username || t('lobby.unknown')]) || [])
     } else {
       hostnames.value = {}
     }
@@ -157,12 +158,12 @@ const loadMembers = async (lobbyId: string) => {
       .in('id', profileIds)
 
     if (profileError) displayError(profileError)
-    else nameMap = Object.fromEntries(profileRows?.map(p => [p.id, p.username || 'Commander']) || [])
+    else nameMap = Object.fromEntries(profileRows?.map(p => [p.id, p.username || t('lobby.commander')]) || [])
   }
 
   members.value = (data || []).map(player => ({
     ...player,
-    profiles: { username: nameMap[player.user_id] || 'Commander' }
+    profiles: { username: nameMap[player.user_id] || t('lobby.commander') }
   }))
 }
 
@@ -179,13 +180,11 @@ const leaveCurrentLobby = async () => {
       await supabase.from('lobby_players').delete().match({ lobby_id: lobbyId, user_id: userId })
     } else {
       await supabase.from('lobby_players').delete().match({ lobby_id: lobbyId })
-      // doppelt sicher: löschen ohne host filter falls oben nichts entfernte
       await supabase.from('lobbies').delete().match({ id: lobbyId })
     }
   } else {
     const { error } = await supabase.from('lobby_players').delete().match({ lobby_id: lobbyId, user_id: userId })
     if (error) displayError(error)
-    // falls Lobby nun leer ist: versuchen aufzuräumen
     const { count } = await supabase
       .from('lobby_players')
       .select('*', { count: 'exact', head: true })
@@ -207,7 +206,7 @@ const leaveCurrentLobby = async () => {
 const createLobby = async () => {
   const userId = await getUserId()
   if (!userId) {
-    displayError({ message: 'Kein eingeloggter User gefunden. Bitte neu einloggen.' })
+    displayError({ message: t('lobby.not-logged-in') })
     return
   }
   creating.value = true
@@ -236,7 +235,7 @@ const createLobby = async () => {
 const joinLobby = async (lobbyId: string) => {
   const userId = await getUserId()
   if (!userId) {
-    displayError({ message: 'Kein eingeloggter User gefunden. Bitte neu einloggen.' })
+    displayError({ message: t('lobby.not-logged-in') })
     return
   }
   joining.value = lobbyId
@@ -271,7 +270,7 @@ const startLobby = async () => {
 
 const displayError = (error: { message: string }) => {
   toast.add({
-    title: 'Fehler',
+    title: t('lobby.error'),
     description: error.message,
     color: 'error',
     icon: 'i-lucide-alert-circle'
@@ -282,10 +281,8 @@ const subscribeRealtime = () => {
   channel = supabase
     .channel('lobby-stream')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'lobbies' }, () => refreshLobbies())
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'lobby_players' }, async (payload) => {
-      if (payload.new?.lobby_id === myLobbyId.value || payload.old?.lobby_id === myLobbyId.value) {
-        await loadMembers(myLobbyId.value!)
-      }
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'lobby_players' }, async () => {
+      await loadMembers(myLobbyId.value!)
       refreshLobbies()
     })
     .subscribe()
@@ -314,257 +311,257 @@ watch(currentLobby, (value) => {
 </script>
 
 <template>
-  <div class="bg-slate-950 text-white min-h-[calc(100vh-var(--ui-header-height))]">
-    <UContainer class="py-12 space-y-8">
-      <div class="flex flex-wrap items-center justify-between gap-4">
-        <div class="space-y-1">
-          <p class="text-sm uppercase tracking-[0.2em] text-emerald-300">
-            Lobby
-          </p>
-          <h1 class="text-3xl font-semibold">
-            Finde oder hoste deine AI-Wars Lobby
-          </h1>
+  <div class="bg-static-nasa text-white min-h-screen">
+    <div class="bg-linear-to-b from-slate-900/85 via-slate-950/90 to-slate-950/80 min-h-screen">
+      <UContainer class="py-8 space-y-8">
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 class="text-4xl font-bold text-white">
+              {{ t('lobby.title') }}
+            </h1>
+          </div>
+          <div class="flex gap-2">
+            <CommonLanguageSwitch />
+            <UButton
+              icon="i-lucide-user"
+              to="/profile"
+              variant="soft"
+            >
+              {{ t('lobby.profile-button') }}
+            </UButton>
+            <UButton
+              icon="i-lucide-log-out"
+              color="neutral"
+              variant="soft"
+              @click="signOut"
+            >
+              {{ t('lobby.logout-button') }}
+            </UButton>
+          </div>
         </div>
-        <div class="flex gap-3">
-          <UButton
-            icon="i-lucide-user"
-            to="/profile"
-            color="secondary"
-            variant="soft"
-          >
-            Profil
-          </UButton>
-          <UButton
-            icon="i-lucide-log-out"
-            color="neutral"
-            variant="soft"
-            @click="signOut"
-          >
-            Logout
-          </UButton>
-        </div>
-      </div>
 
-      <div
-        v-if="currentLobby"
-        class="grid gap-6 lg:grid-cols-3"
-      >
-        <UCard class="lg:col-span-2 border-white/10 bg-white/5">
-          <template #header>
-            <div class="flex items-center justify-between">
-              <p class="font-semibold text-white">
-                Meine Lobby
-              </p>
-              <UBadge
-                color="primary"
-                variant="subtle"
-              >
-                {{ currentLobby.status }}
-              </UBadge>
-            </div>
-          </template>
-
-          <div class="space-y-4">
-            <div class="space-y-1">
-              <p class="text-lg font-semibold">
-                {{ currentLobby.name }}
-              </p>
-              <p class="text-sm text-slate-300">
-                Host: {{ hostNameFor(currentLobby.host_id) }}
-              </p>
-              <p class="text-sm text-slate-300">
-                Spieler aktuell: {{ memberCount }}
-              </p>
-            </div>
-
-            <div class="space-y-2">
-              <p class="text-sm font-semibold text-white">
-                Spieler in der Lobby
-              </p>
-              <div class="space-y-2">
-                <div
-                  v-for="player in members"
-                  :key="player.user_id"
-                  class="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-3 py-2"
-                >
-                  <div class="flex items-center gap-2">
-                    <span class="h-2 w-2 rounded-full bg-emerald-400" />
-                    <span>{{ player.profiles?.username || 'Commander' }}</span>
-                  </div>
-                  <span
-                    v-if="player.is_host"
-                    class="text-xs uppercase tracking-wide text-emerald-300"
-                  >Host</span>
+        <!-- Your Lobby -->
+        <div
+          v-if="currentLobby"
+          class="space-y-6"
+        >
+          <UCard class="border-white/10 bg-white/5">
+            <template #header>
+              <div class="flex items-center justify-between gap-4">
+                <div>
+                  <h2 class="text-2xl font-bold text-white">
+                    {{ currentLobby.name }}
+                  </h2>
+                  <p class="text-sm text-slate-400 mt-1">
+                    {{ t('lobby.host-label') }} <span class="text-violet-400">{{ hostNameFor(currentLobby.host_id) }}</span>
+                  </p>
                 </div>
-                <p
-                  v-if="!members.length"
-                  class="text-sm text-slate-300"
+                <UBadge
+                  :color="currentLobby.status === 'started' ? 'warning' : 'success'"
+                  variant="subtle"
+                  class="text-xs uppercase"
                 >
-                  Wartet noch auf Mitspieler.
-                </p>
+                  {{ currentLobby.status === 'started' ? t('lobby.status-started') : t('lobby.status-waiting') }}
+                </UBadge>
+              </div>
+            </template>
+
+            <div class="grid gap-8 lg:grid-cols-3 pb-4">
+              <!-- Players -->
+              <div class="lg:col-span-2 space-y-4">
+                <div>
+                  <p class="text-sm font-semibold text-white uppercase tracking-wide mb-3">
+                    👥 {{ t('lobby.players-title') }} ({{ memberCount }})
+                  </p>
+                  <div class="space-y-2">
+                    <div
+                      v-for="player in members"
+                      :key="player.user_id"
+                      class="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-4 py-3"
+                    >
+                      <div class="flex items-center gap-3">
+                        <span class="h-2 w-2 rounded-full bg-emerald-400" />
+                        <span>{{ player.profiles?.username || t('lobby.commander') }}</span>
+                      </div>
+                      <span
+                        v-if="player.is_host"
+                        class="text-xs uppercase text-violet-300 bg-violet-500/20 px-2 py-1 rounded"
+                      >⭐ Host</span>
+                    </div>
+                    <p
+                      v-if="!members.length"
+                      class="text-sm text-slate-400 text-center py-4"
+                    >
+                      {{ t('lobby.waiting-for-players') }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Info -->
+              <div class="space-y-3 text-sm">
+                <div>
+                  <p class="text-slate-400 text-xs uppercase tracking-wide">
+                    {{ t('lobby.player-limit-label') }}
+                  </p>
+                  <p class="text-lg font-semibold text-white">
+                    {{ memberCount }}{{ t('lobby.player-limit-max') }}
+                  </p>
+                </div>
+                <div class="pt-3 border-t border-white/5">
+                  <p class="text-slate-400 text-xs uppercase tracking-wide">
+                    {{ t('lobby.lobby-id-label') }}
+                  </p>
+                  <p class="text-slate-300 font-mono text-xs break-all mt-1">
+                    {{ currentLobby.id }}
+                  </p>
+                </div>
               </div>
             </div>
 
-            <div class="flex flex-wrap gap-3">
+            <!-- Actions -->
+            <div class="flex flex-wrap gap-2 pt-6 border-t border-white/5">
               <UButton
                 v-if="isHost"
                 color="primary"
-                icon="i-lucide-play"
+                icon="i-lucide-rocket"
                 :disabled="memberCount < 1"
                 @click="startLobby"
               >
-                Spiel starten
+                {{ t('lobby.start-game-button') }}
               </UButton>
               <UButton
                 v-else
                 color="primary"
                 variant="soft"
                 icon="i-lucide-hourglass"
+                disabled
               >
-                Warten auf Host
+                {{ t('lobby.waiting-for-host-button') }}
               </UButton>
               <UButton
-                color="secondary"
+                color="neutral"
                 variant="ghost"
                 icon="i-lucide-log-out"
                 @click="leaveCurrentLobby"
               >
-                Lobby verlassen
+                {{ t('lobby.leave-lobby-button') }}
               </UButton>
-            </div>
-          </div>
-        </UCard>
-
-        <UCard class="border-white/10 bg-white/5">
-          <template #header>
-            <p class="font-semibold text-white">
-              Status
-            </p>
-          </template>
-          <div class="space-y-2 text-sm text-slate-200">
-            <p>Lobby-ID: {{ currentLobby.id }}</p>
-            <p>Host: {{ hostNameFor(currentLobby.host_id) }}</p>
-            <p>Spieler: {{ memberCount }}</p>
-          </div>
-        </UCard>
-      </div>
-
-      <div
-        v-else
-        class="grid gap-6 lg:grid-cols-3"
-      >
-        <UCard class="lg:col-span-2 border-white/10 bg-white/5">
-          <template #header>
-            <div class="flex items-center justify-between">
-              <p class="font-semibold text-white">
-                Offene Lobbys
-              </p>
-              <span class="text-sm text-slate-200">{{ lobbies.length }} aktiv</span>
-            </div>
-          </template>
-
-          <div
-            v-if="loading"
-            class="space-y-3"
-          >
-            <USkeleton
-              v-for="i in 4"
-              :key="i"
-              class="h-14"
-            />
-          </div>
-
-          <div
-            v-else
-            class="space-y-3"
-          >
-            <div
-              v-for="lobby in lobbies"
-              :key="lobby.id"
-              class="flex flex-col gap-2 rounded-xl border border-white/10 bg-white/5 p-4 md:flex-row md:items-center md:justify-between"
-            >
-              <div class="space-y-1">
-                <div class="flex items-center gap-2 text-sm text-emerald-300">
-                  <span
-                    class="h-2 w-2 rounded-full"
-                    :class="lobby.status === 'started' ? 'bg-amber-400' : 'bg-emerald-400'"
-                  />
-                  {{ lobby.status === 'started' ? 'gestartet' : 'bereit' }}
-                </div>
-                <p class="text-lg font-semibold">
-                  {{ lobby.name }}
-                </p>
-                <p class="text-sm text-slate-200">
-                  Host: {{ hostNameFor(lobby.host_id) }}
-                </p>
-                <p class="text-sm text-slate-300">
-                  Spieler: {{ playerCounts[lobby.id] || 0 }}
-                </p>
-              </div>
-              <div class="flex items-center gap-3">
-                <UButton
-                  :disabled="lobby.status === 'started'"
-                  :loading="joining === lobby.id"
-                  color="primary"
-                  icon="i-lucide-door-open"
-                  @click="joinLobby(lobby.id)"
-                >
-                  Beitreten
-                </UButton>
-              </div>
-            </div>
-
-            <p
-              v-if="!lobbies.length"
-              class="text-sm text-slate-300"
-            >
-              Noch keine Lobbys vorhanden. Erstelle die erste!
-            </p>
-          </div>
-        </UCard>
-
-        <div class="space-y-6">
-          <UCard class="border-white/10 bg-white/5">
-            <template #header>
-              <p class="font-semibold text-white">
-                Neue Lobby erstellen
-              </p>
-            </template>
-            <div class="space-y-2 text-white">
-              <label class="text-sm font-medium">Lobby-Name</label>
-              <p class="text-xs text-slate-300">
-                Optional – wird sonst automatisch vergeben
-              </p>
-              <UInput
-                v-model="lobbyName"
-                color="primary"
-                placeholder="z.B. Night Raid"
-              />
-              <UButton
-                block
-                color="primary"
-                icon="i-lucide-rocket"
-                :loading="creating"
-                @click="createLobby"
-              >
-                Erstellen und beitreten
-              </UButton>
-            </div>
-          </UCard>
-
-          <UCard class="border-white/10 bg-white/5">
-            <template #header>
-              <p class="font-semibold text-white">
-                Status
-              </p>
-            </template>
-            <div class="space-y-2 text-sm text-slate-200">
-              <p>Keiner Lobby beigetreten.</p>
-              <p>Wähle links eine Lobby oder erstelle eine neue.</p>
             </div>
           </UCard>
         </div>
-      </div>
-    </UContainer>
+
+        <!-- Open Lobbies -->
+        <div
+          v-else
+          class="space-y-6"
+        >
+          <div class="grid gap-6 lg:grid-cols-3">
+            <!-- Lobbies List -->
+            <div class="lg:col-span-2">
+              <UCard class="border-white/10 bg-white/5">
+                <template #header>
+                  <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-bold text-white">
+                      {{ t('lobby.open-lobbies-title') }}
+                    </h2>
+                    <span class="text-xs text-slate-300">{{ lobbies.length }} {{ t('lobby.active-count') }}</span>
+                  </div>
+                </template>
+
+                <div
+                  v-if="loading"
+                  class="space-y-3"
+                >
+                  <USkeleton
+                    v-for="i in 4"
+                    :key="i"
+                    class="h-16"
+                  />
+                </div>
+
+                <div
+                  v-else-if="lobbies.length"
+                  class="space-y-3"
+                >
+                  <div
+                    v-for="lobby in lobbies"
+                    :key="lobby.id"
+                    class="flex flex-col gap-3 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 p-4 md:flex-row md:items-center md:justify-between transition-colors"
+                  >
+                    <div class="space-y-2 flex-1">
+                      <div class="flex items-center gap-2">
+                        <span
+                          class="h-2 w-2 rounded-full"
+                          :class="lobby.status === 'started' ? 'bg-amber-400' : 'bg-emerald-400'"
+                        />
+                        <span
+                          class="text-xs uppercase tracking-wide font-semibold"
+                          :class="lobby.status === 'started' ? 'text-amber-300' : 'text-emerald-300'"
+                        >
+                          {{ lobby.status === 'started' ? t('lobby.lobby-started') : t('lobby.lobby-ready') }}
+                        </span>
+                      </div>
+                      <p class="font-semibold text-white">
+                        {{ lobby.name }}
+                      </p>
+                      <p class="text-sm text-slate-300">
+                        {{ hostNameFor(lobby.host_id) }} · {{ playerCounts[lobby.id] || 0 }}{{ t('lobby.player-limit-max') }}
+                      </p>
+                    </div>
+                    <UButton
+                      :disabled="lobby.status === 'started'"
+                      :loading="joining === lobby.id"
+                      icon="i-lucide-door-open"
+                      size="sm"
+                      @click="joinLobby(lobby.id)"
+                    >
+                      {{ t('lobby.join-button') }}
+                    </UButton>
+                  </div>
+                </div>
+
+                <div
+                  v-else
+                  class="text-center py-6 text-slate-400"
+                >
+                  <p class="text-sm">
+                    {{ t('lobby.no-lobbies') }}
+                  </p>
+                  <p class="text-xs text-slate-500 mt-1">
+                    {{ t('lobby.no-lobbies-hint') }}
+                  </p>
+                </div>
+              </UCard>
+            </div>
+
+            <!-- Create Lobby -->
+            <UCard class="border-white/10 bg-white/5 h-fit">
+              <template #header>
+                <p class="font-bold text-white">
+                  {{ t('lobby.create-lobby-title') }}
+                </p>
+              </template>
+              <div class="space-y-4">
+                <UInput
+                  v-model="lobbyName"
+                  :placeholder="t('lobby.lobby-name-placeholder')"
+                />
+                <UButton
+                  block
+                  color="primary"
+                  icon="i-lucide-rocket"
+                  :loading="creating"
+                  @click="createLobby"
+                >
+                  {{ t('lobby.create-button') }}
+                </UButton>
+              </div>
+            </UCard>
+          </div>
+        </div>
+      </UContainer>
+    </div>
   </div>
 </template>

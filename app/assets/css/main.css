@@ -1,6 +1,15 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
+/* Static background for lobby and profile pages */
+.bg-static-nasa {
+  background-image: url('/background2.png');
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
 @theme static {
   --font-sans: 'Public Sans', sans-serif;
 
@@ -15,65 +24,4 @@
   --color-green-800: #016538;
   --color-green-900: #0A5331;
   --color-green-950: #052E16;
-}
-
-.ai-hero {
-  position: relative;
-  overflow: hidden;
-  background:
-    radial-gradient(1200px at 10% 10%, rgba(0, 220, 130, 0.18), transparent 50%),
-    radial-gradient(900px at 80% 0%, rgba(59, 130, 246, 0.22), transparent 55%),
-    linear-gradient(135deg, #0a1020 0%, #0b1b2f 35%, #050915 100%);
-}
-
-.ai-hero::before,
-.ai-hero::after {
-  content: '';
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(70px);
-  opacity: 0.35;
-}
-
-.ai-hero::before {
-  width: 320px;
-  height: 320px;
-  background: #34d399;
-  top: 18%;
-  left: 6%;
-}
-
-.ai-hero::after {
-  width: 260px;
-  height: 260px;
-  background: #38bdf8;
-  bottom: 12%;
-  right: 8%;
-}
-
-.glass-card {
-  backdrop-filter: blur(20px);
-  background: rgba(12, 18, 40, 0.85);
-  border: 1px solid rgba(56, 189, 248, 0.2);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
-}
-
-.neon-chip {
-  background: linear-gradient(120deg, rgba(59, 130, 246, 0.2), rgba(16, 185, 129, 0.25));
-  border: 1px solid rgba(16, 185, 129, 0.35);
-  color: #a5f3fc;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-weight: 700;
-}
-
-.feature-tile {
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.04), rgba(15, 23, 42, 0.8));
-  transition: transform 180ms ease, border-color 180ms ease;
-}
-
-.feature-tile:hover {
-  transform: translateY(-3px);
-  border-color: rgba(16, 185, 129, 0.5);
 }
