@@ -7,18 +7,6 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'end-year' | 'toggle-event-log'): void
 }>()
-
-const { locales, setLocale, localeProperties } = useI18n()
-
-const items = computed(() =>
-  locales.value.map(l => ({
-    label: l.name ?? l.code.toUpperCase(),
-    code: l.code,
-    onSelect: async () => {
-      setLocale(l.code)
-    }
-  }))
-)
 </script>
 
 <template>
@@ -34,13 +22,7 @@ const items = computed(() =>
             AI Wars
           </UBadge>
         </div>
-        <UDropdownMenu :items="items">
-          <UButton
-            variant="ghost"
-            size="sm"
-            :label="localeProperties.name"
-          />
-        </UDropdownMenu>
+        <CommonLanguageSwitch />
       </div>
       <div class="flex items-center gap-4">
         <span class="text-sm text-slate-400">{{ $t('game.top-bar.year', { value: props.year }) }}</span>
