@@ -1,11 +1,11 @@
 name: Feature
-description: Propose a new feature or improvement for AI Wars
+description: Propose a new feature or improvement for Ascension of AI.
 labels: ["enhancement"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to suggest a feature for **AI Wars**.
+        Thanks for taking the time to suggest a feature for **Ascension of AI**.
         Please focus on *what* the feature is and *why* it matters.
 
   - type: textarea

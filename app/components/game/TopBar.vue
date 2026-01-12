@@ -19,7 +19,7 @@ const emit = defineEmits<{
             variant="solid"
             class="uppercase tracking-[0.2em] bg-cyan-500 text-slate-950"
           >
-            AI Wars
+            Ascension of AI
           </UBadge>
         </div>
         <CommonLanguageSwitch />

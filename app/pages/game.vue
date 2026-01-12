@@ -58,7 +58,7 @@
 type SelectionType = 'planet' | 'army' | 'system' | 'research'
 
 definePageMeta({
-  title: 'AI Wars',
+  title: 'Ascension of AI',
   layout: false
 })
 

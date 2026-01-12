@@ -19,7 +19,7 @@
   },
   "lobby": {
     "title": "Lobby",
-    "subtitle": "Find or host your AI-Wars lobby",
+    "subtitle": "Find or host your Ascension of AI lobby",
     "profile-button": "Profile",
     "logout-button": "Logout",
     "logged-out": "Logged out",
@@ -218,7 +218,7 @@
     },
     "lobby": {
       "label": "Lobby",
-      "title": "Find or host your AI-Wars Lobby",
+      "title": "Find or host your Ascension of AI Lobby",
       "open-lobbies": "Open Lobbies",
       "active": "{count} active",
       "no-lobbies": "No lobbies yet. Create the first one!",
