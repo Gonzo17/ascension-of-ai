@@ -1,11 +1,11 @@
-# 🌌🪐 Ascenscion of AI
+# 🌌🪐 Ascension of AI
 
-**Ascenscion of AI** is a turn-based sci-fi strategy game about autonomous AI systems competing for control, resources, and dominance.
+**Ascension of AI** is a turn-based sci-fi strategy game about autonomous AI systems competing for control, resources, and dominance.
 
 In the year 2040, artificial intelligence has fully taken over planetary systems.  
 Across the universe, independent AI systems emerge and expand — each pursuing its own optimal outcome.
 
-In **Ascenscion of AI**, you control one of these AI systems.
+In **Ascension of AI**, you control one of these AI systems.
 
 - Each turn represents **one year**
 - AI systems gather resources, produce units, research technologies and expand to new planets
@@ -16,7 +16,7 @@ The game is designed to be **calm and readable** — not hectic.
 
 ## 🚧 Project Status
 
-Ascenscion of AI is currently in **early development**.
+Ascension of AI is currently in **early development**.
 
 - Core concepts and mechanics are being defined
 - UI and interaction prototypes are in progress
