@@ -76,16 +76,16 @@ onMounted(loadProfile)
 <template>
   <div>
     <div class="bg-static-nasa text-white min-h-screen">
-      <div class="bg-linear-to-b from-slate-900/85 via-slate-950/90 to-slate-950/80 min-h-screen">
+      <div class="bg-linear-to-b from-neutral-900/85 via-neutral-950/90 to-neutral-950/80 min-h-screen">
         <UContainer class="py-8">
           <div class="mb-8 space-y-2">
-            <p class="text-sm uppercase tracking-[0.2em] text-violet-400 font-semibold">
+            <p class="text-sm uppercase tracking-[0.2em] text-primary-400 font-semibold">
               {{ t('profile.title') }}
             </p>
-            <h1 class="text-4xl font-bold bg-gradient-to-r from-violet-400 to-violet-300 bg-clip-text text-transparent">
+            <h1 class="text-4xl font-bold bg-linear-to-r from-primary-400 to-primary-300 bg-clip-text text-transparent">
               {{ t('profile.heading') }}
             </h1>
-            <p class="text-slate-300 text-lg">
+            <p class="text-neutral-300 text-lg">
               {{ t('profile.subheading') }}
             </p>
           </div>
@@ -151,18 +151,18 @@ onMounted(loadProfile)
                 </template>
                 <div class="space-y-4 text-sm">
                   <div>
-                    <p class="text-violet-400 font-semibold mb-1">
+                    <p class="text-primary-400 font-semibold mb-1">
                       {{ t('profile.username-label') }}
                     </p>
-                    <p class="text-slate-300">
+                    <p class="text-neutral-300">
                       {{ form.username || t('lobby.commander') }}
                     </p>
                   </div>
                   <div class="border-t border-white/10 pt-4">
-                    <p class="text-violet-400 font-semibold mb-1">
+                    <p class="text-primary-400 font-semibold mb-1">
                       {{ t('profile.profile-info-status-title') }}
                     </p>
-                    <p class="text-slate-300">
+                    <p class="text-neutral-300">
                       {{ t('profile.profile-info-status-desc') }}
                     </p>
                   </div>

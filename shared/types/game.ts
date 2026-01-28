@@ -1,46 +1,105 @@
-export interface GameResource {
-  key: string
-  label: string
-  amount: number
-  delta: string
-  accent: string
-  icon: string
+export type Id<T extends string> = `${T}:${string}`
+
+export type IntelLevel = 'low' | 'medium' | 'high'
+
+export type GameId = Id<'game'>
+export type PlayerId = Id<'player'>
+
+export type ShipId = Id<'ship'>
+export type ProbeId = Id<'probe'>
+
+export type ResearchId = Id<'tech'>
+
+export type GalaxyId = Id<'galaxy'>
+export interface Galaxy {
+  id: GalaxyId
+  name: string
+  intel: IntelLevel
+  connections: GalaxyId[]
+  solarSystems: SolarSystemId[]
+  location: {
+    x: number
+    y: number
+  }
 }
 
-export interface GameArmy {
-  id: string
+export type SolarSystemId = Id<'sys'>
+export interface SolarSystem {
+  id: SolarSystemId
   name: string
-  status: 'idle' | 'en-route'
-  location: string
-  eta?: string
+  intel: IntelLevel
+  connections: SolarSystemId[]
+  planets: PlanetId[]
+  location: {
+    x: number
+    y: number
+  }
+}
+
+export type PlanetId = Id<'pl'>
+export interface Planet {
+  id: PlanetId
+  systemId: SolarSystemId
+  name: string
+  owner: PlayerId | 'unknown' | 'unclaimed'
+  type: 'terrestrial' | 'gas-giant' | 'ice-giant' | 'barren' | 'oceanic' | 'desert'
+  size: 'small' | 'medium' | 'large' | 'huge'
+  buildings: Building[]
+  queues: {
+    build: Building[]
+    shipyard: Unit[]
+  }
+  location: {
+    x: number
+    y: number
+  }
+}
+
+export type BuildingId = Id<'bld'>
+export interface Building {
+  id: BuildingId
+  level: number
+  isConstructing: boolean
+  constructionTimeLeft: number
+  costs: {
+    energy: number
+    minerals: number
+    rare: number
+  }
+  requirements: {
+    buildings: { id: BuildingId, level: number }[]
+    research: ResearchId[]
+  }
+}
+
+export interface Research {
+  id: ResearchId
+  yearsRequired: number
+  prerequisites: string[]
+}
+
+export type TravelStatus = 'idle' | 'en-route'
+
+export type UnitId = Id<'unit'>
+export interface Unit {
+  id: UnitId
+  type: 'battleship' | 'probe' | 'colonizer'
+  name: string
+  status: TravelStatus
+  location: PlanetId | SolarSystemId | GalaxyId
+  destination?: PlanetId | SolarSystemId | GalaxyId
+  eta?: number
   strength: number
 }
 
-export interface GamePlanet {
-  id: string
-  systemId: string
-  name: string
-  owner: string
-  type: string
-  buildings: string[]
-  queues: {
-    build: string[]
-    shipyard: string[]
-  }
-  location: {
-    x: number
-    y: number
-  }
+export type ResourceId = Id<'res'>
+export interface Resource {
+  key: ResourceId
+  current: number
+  max: number
+  delta: number
 }
 
-export interface GameSolarSystem {
-  id: string
-  name: string
-  probeStatus: 'scanned' | 'charted' | 'ping-only'
-  intel: 'high' | 'medium' | 'low'
-  connections: string[]
-  location: {
-    x: number
-    y: number
-  }
-}
+export type Energy = Resource & { key: 'res:energy' }
+export type Material = Resource & { key: 'res:material' }
+export type Rare = Resource & { key: 'res:rare' }

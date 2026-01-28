@@ -1,61 +1,81 @@
 <template>
-  <div class="min-h-screen bg-slate-950 text-slate-100">
+  <div class="h-screen bg-neutral-950 text-neutral-100 flex flex-col overflow-hidden">
     <!-- Toast Container -->
     <GameToastContainer />
 
     <GameTopBar
       :year="year"
       :unread-event-count="eventLogStore.unreadCount"
-      @end-year="handleEndYear"
+      :resources="resources"
+      :research="research"
       @toggle-event-log="eventLogStore.toggle"
+      @open-research="researchStore.toggle"
     />
 
-    <div class="h-full flex gap-4 px-6 pb-8 pt-4">
-      <div class="w-150 shrink-0 flex flex-col gap-4">
-        <GameGlobalPanel
-          :resources="resources"
-          :research="research"
-          :armies="armies"
-          :planets="planets"
-          :systems="systems"
-          @select-army="(id: string) => setSelection('army', id)"
-          @open-research="setSelection('research')"
-          @end-year="handleEndYear"
-          @select-planet="(id: string) => setSelection('planet', id)"
-        />
+    <!-- Full-screen Map Container -->
+    <div class="relative flex-1 overflow-hidden">
+      <GameCanvas
+        :view-mode="viewMode"
+        :selected-type="selectedType"
+        :selected-id="selectedId!"
+        :planets="planets"
+        :systems="systems"
+        @select-planet="(id: string) => setSelection('planet', id)"
+        @select-system="(id: string) => setSelection('system', id)"
+        @update:view-mode="handleViewModeChange"
+      />
 
-        <GameSelectionPanel
-          :selection-type="selectedType"
-          :selection="selection"
-          @update:view-mode="handleViewModeChange"
-        />
-      </div>
+      <!-- Event Log Overlay -->
+      <GameEventLogCenter
+        v-if="eventLogStore.isOpen"
+        @close="eventLogStore.close"
+        @navigate-to="handleEventNavigate"
+      />
 
-      <div class="relative flex-1">
-        <GameCanvas
-          :view-mode="viewMode"
-          :selected-type="selectedType"
-          :selected-id="selectedId!"
-          :planets="planets"
-          :systems="systems"
-          @select-planet="(id: string) => setSelection('planet', id)"
-          @select-system="(id: string) => setSelection('system', id)"
-          @update:view-mode="handleViewModeChange"
-        />
+      <!-- Research Tree Overlay -->
+      <GameResearchTreeGraph
+        v-if="researchStore.isOpen"
+        @close="researchStore.close"
+      />
 
-        <!-- Event Log Overlay -->
-        <GameEventLogCenter
-          v-if="eventLogStore.isOpen"
-          @close="eventLogStore.close"
-          @navigate-to="handleEventNavigate"
-        />
-      </div>
+      <!-- End Turn Button (hidden when dialogs are open) -->
+      <GameEndTurnButton v-if="!eventLogStore.isOpen && !researchStore.isOpen" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 type SelectionType = 'planet' | 'army' | 'system' | 'research'
+
+// Local UI types (different from backend types)
+interface GameResource {
+  key: string
+  label: string
+  amount: number
+  delta: string
+  accent: string
+  icon: string
+}
+
+interface GameSolarSystem {
+  id: string
+  name: string
+  probeStatus: string
+  intel: string
+  connections: string[]
+  location: { x: number, y: number }
+}
+
+interface GamePlanet {
+  id: string
+  systemId: string
+  name: string
+  owner: string
+  type: string
+  buildings: string[]
+  queues: { build: string[], shipyard: string[] }
+  location: { x: number, y: number }
+}
 
 definePageMeta({
   title: 'Ascension of AI',
@@ -67,8 +87,8 @@ const viewMode = ref<'galaxy' | 'system'>('galaxy')
 const selectedType = ref<SelectionType>('planet')
 const selectedId = ref<string | undefined>('p-aurora')
 
-const toast = useToast()
 const eventLogStore = useEventLogStore()
+const researchStore = useResearchStore()
 
 // Initialize mock data on mount
 onMounted(() => {
@@ -139,17 +159,11 @@ const { t } = useI18n()
 
 const resources = computed((): GameResource[] => [
   { key: 'energy', label: t('game.resources.energy'), amount: 1260, delta: '+15', accent: 'text-warning-300', icon: 'zap' },
-  { key: 'material', label: t('game.resources.material'), amount: 880, delta: '+7', accent: 'text-stone-300', icon: 'wrench' },
-  { key: 'rare', label: t('game.resources.rare'), amount: 210, delta: '+1', accent: 'text-pink-300', icon: 'gem' }
+  { key: 'material', label: t('game.resources.material'), amount: 880, delta: '+7', accent: 'text-neutral-300', icon: 'wrench' },
+  { key: 'rare', label: t('game.resources.rare'), amount: 210, delta: '+1', accent: 'text-primary-300', icon: 'gem' }
 ])
 
-const research = ref({ id: 'quantum-lattice', yearsLeft: 2 })
-
-const armies = ref<GameArmy[]>([
-  { id: 'a1', name: 'Horizon Wing', status: 'idle', location: 'Aurora Prime', strength: 82 },
-  { id: 'a2', name: 'Spearhead', status: 'en-route', location: 'to Nadir Gate', eta: '2y', strength: 74 },
-  { id: 'a3', name: 'Vanguard', status: 'idle', location: 'Borealis Shipyard', strength: 65 }
-])
+const research = ref({ id: 'quantum-lattice', yearsLeft: 2, progress: 45 })
 
 const systems = ref<GameSolarSystem[]>([
   { id: 's-lyra', name: 'Lyra-7', probeStatus: 'scanned', intel: 'high', connections: ['Nadir Gate', 'Helios Fringe'], location: { x: 22, y: 35 } },
@@ -190,19 +204,6 @@ const planets = ref<GamePlanet[]>([
   }
 ])
 
-const selection = computed(() => {
-  if (selectedType.value === 'planet') {
-    return planets.value.find(p => p.id === selectedId.value) ?? null
-  }
-  if (selectedType.value === 'army') {
-    return armies.value.find(a => a.id === selectedId.value) ?? null
-  }
-  if (selectedType.value === 'system') {
-    return systems.value.find(s => s.id === selectedId.value) ?? null
-  }
-  return null
-})
-
 const setSelection = (type: SelectionType, id?: string) => {
   selectedType.value = type
   selectedId.value = id
@@ -210,10 +211,5 @@ const setSelection = (type: SelectionType, id?: string) => {
 
 const handleViewModeChange = (mode: 'galaxy' | 'system') => {
   viewMode.value = mode
-}
-
-const handleEndYear = () => {
-  year.value += 1
-  toast.add({ title: t('game.toast.year-advanced-title', { value: year.value }), description: t('game.toast.year-advanced-description'), color: 'neutral' })
 }
 </script>

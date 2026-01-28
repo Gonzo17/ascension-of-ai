@@ -312,7 +312,7 @@ watch(currentLobby, (value) => {
 
 <template>
   <div class="bg-static-nasa text-white min-h-screen">
-    <div class="bg-linear-to-b from-slate-900/85 via-slate-950/90 to-slate-950/80 min-h-screen">
+    <div class="bg-linear-to-b from-neutral-900/85 via-neutral-950/90 to-neutral-950/80 min-h-screen">
       <UContainer class="py-8 space-y-8">
         <!-- Header -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -353,8 +353,8 @@ watch(currentLobby, (value) => {
                   <h2 class="text-2xl font-bold text-white">
                     {{ currentLobby.name }}
                   </h2>
-                  <p class="text-sm text-slate-400 mt-1">
-                    {{ t('lobby.host-label') }} <span class="text-violet-400">{{ hostNameFor(currentLobby.host_id) }}</span>
+                  <p class="text-sm text-neutral-400 mt-1">
+                    {{ t('lobby.host-label') }} <span class="text-primary-400">{{ hostNameFor(currentLobby.host_id) }}</span>
                   </p>
                 </div>
                 <UBadge
@@ -381,17 +381,17 @@ watch(currentLobby, (value) => {
                       class="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-4 py-3"
                     >
                       <div class="flex items-center gap-3">
-                        <span class="h-2 w-2 rounded-full bg-emerald-400" />
+                        <span class="h-2 w-2 rounded-full bg-success-400" />
                         <span>{{ player.profiles?.username || t('lobby.commander') }}</span>
                       </div>
                       <span
                         v-if="player.is_host"
-                        class="text-xs uppercase text-violet-300 bg-violet-500/20 px-2 py-1 rounded"
+                        class="text-xs uppercase text-primary-300 bg-primary-500/20 px-2 py-1 rounded"
                       >⭐ Host</span>
                     </div>
                     <p
                       v-if="!members.length"
-                      class="text-sm text-slate-400 text-center py-4"
+                      class="text-sm text-neutral-400 text-center py-4"
                     >
                       {{ t('lobby.waiting-for-players') }}
                     </p>
@@ -402,7 +402,7 @@ watch(currentLobby, (value) => {
               <!-- Info -->
               <div class="space-y-3 text-sm">
                 <div>
-                  <p class="text-slate-400 text-xs uppercase tracking-wide">
+                  <p class="text-neutral-400 text-xs uppercase tracking-wide">
                     {{ t('lobby.player-limit-label') }}
                   </p>
                   <p class="text-lg font-semibold text-white">
@@ -410,10 +410,10 @@ watch(currentLobby, (value) => {
                   </p>
                 </div>
                 <div class="pt-3 border-t border-white/5">
-                  <p class="text-slate-400 text-xs uppercase tracking-wide">
+                  <p class="text-neutral-400 text-xs uppercase tracking-wide">
                     {{ t('lobby.lobby-id-label') }}
                   </p>
-                  <p class="text-slate-300 font-mono text-xs break-all mt-1">
+                  <p class="text-neutral-300 font-mono text-xs break-all mt-1">
                     {{ currentLobby.id }}
                   </p>
                 </div>
@@ -466,7 +466,7 @@ watch(currentLobby, (value) => {
                     <h2 class="text-lg font-bold text-white">
                       {{ t('lobby.open-lobbies-title') }}
                     </h2>
-                    <span class="text-xs text-slate-300">{{ lobbies.length }} {{ t('lobby.active-count') }}</span>
+                    <span class="text-xs text-neutral-300">{{ lobbies.length }} {{ t('lobby.active-count') }}</span>
                   </div>
                 </template>
 
@@ -494,11 +494,11 @@ watch(currentLobby, (value) => {
                       <div class="flex items-center gap-2">
                         <span
                           class="h-2 w-2 rounded-full"
-                          :class="lobby.status === 'started' ? 'bg-amber-400' : 'bg-emerald-400'"
+                          :class="lobby.status === 'started' ? 'bg-warning-400' : 'bg-success-400'"
                         />
                         <span
                           class="text-xs uppercase tracking-wide font-semibold"
-                          :class="lobby.status === 'started' ? 'text-amber-300' : 'text-emerald-300'"
+                          :class="lobby.status === 'started' ? 'text-warning-300' : 'text-success-300'"
                         >
                           {{ lobby.status === 'started' ? t('lobby.lobby-started') : t('lobby.lobby-ready') }}
                         </span>
@@ -506,7 +506,7 @@ watch(currentLobby, (value) => {
                       <p class="font-semibold text-white">
                         {{ lobby.name }}
                       </p>
-                      <p class="text-sm text-slate-300">
+                      <p class="text-sm text-neutral-300">
                         {{ hostNameFor(lobby.host_id) }} · {{ playerCounts[lobby.id] || 0 }}{{ t('lobby.player-limit-max') }}
                       </p>
                     </div>
@@ -524,12 +524,12 @@ watch(currentLobby, (value) => {
 
                 <div
                   v-else
-                  class="text-center py-6 text-slate-400"
+                  class="text-center py-6 text-neutral-400"
                 >
                   <p class="text-sm">
                     {{ t('lobby.no-lobbies') }}
                   </p>
-                  <p class="text-xs text-slate-500 mt-1">
+                  <p class="text-xs text-neutral-500 mt-1">
                     {{ t('lobby.no-lobbies-hint') }}
                   </p>
                 </div>

@@ -26,14 +26,14 @@ const description = computed(() => t(props.item.descriptionKey, translateParams(
     class="group rounded-md border transition-colors"
     :class="[
       item.read
-        ? 'border-slate-700/50 bg-slate-800/30'
-        : 'border-l-2 border-l-cyan-500 border-slate-700/50 bg-slate-800/50',
+        ? 'border-neutral-700/50 bg-neutral-800/30'
+        : 'border-l-2 border-l-info-500 border-neutral-700/50 bg-neutral-800/50',
       isHighlighted && 'animate-highlight'
     ]"
   >
     <!-- Item Header (clickable) -->
     <button
-      class="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-slate-700/20 transition-colors"
+      class="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-neutral-700/20 transition-colors"
       @click="emit('toggle')"
     >
       <UIcon
@@ -44,17 +44,17 @@ const description = computed(() => t(props.item.descriptionKey, translateParams(
       <div class="flex-1 min-w-0">
         <p
           class="text-sm truncate"
-          :class="item.read ? 'text-slate-300 font-normal' : 'text-slate-100 font-medium'"
+          :class="item.read ? 'text-neutral-300 font-normal' : 'text-neutral-100 font-medium'"
         >
           {{ title }}
         </p>
-        <p class="text-xs text-slate-400 truncate">
+        <p class="text-xs text-neutral-400 truncate">
           {{ description }}
         </p>
       </div>
       <UIcon
         name="i-lucide-chevron-down"
-        class="w-4 h-4 text-slate-500 transition-transform"
+        class="w-4 h-4 text-neutral-500 transition-transform"
         :class="{ 'rotate-180': expanded }"
       />
     </button>
@@ -62,7 +62,7 @@ const description = computed(() => t(props.item.descriptionKey, translateParams(
     <!-- Expanded Details -->
     <div
       v-if="expanded && item.details?.length"
-      class="px-4 pb-3 pt-1 border-t border-slate-700/30"
+      class="px-4 pb-3 pt-1 border-t border-neutral-700/30"
     >
       <div class="space-y-2">
         <div
@@ -73,17 +73,17 @@ const description = computed(() => t(props.item.descriptionKey, translateParams(
           <UIcon
             v-if="detail.icon"
             :name="detail.icon"
-            class="w-3 h-3 text-slate-500"
+            class="w-3 h-3 text-neutral-500"
           />
-          <span class="text-slate-400">{{ t(detail.labelKey) }}:</span>
-          <span class="text-slate-200">{{ translateValue(detail.value, detail.valueParams) }}</span>
+          <span class="text-neutral-400">{{ t(detail.labelKey) }}:</span>
+          <span class="text-neutral-200">{{ translateValue(detail.value, detail.valueParams) }}</span>
         </div>
       </div>
 
       <!-- Navigate Button -->
       <div
         v-if="item.relatedEntityId && item.relatedEntityType"
-        class="mt-3 pt-2 border-t border-slate-700/30"
+        class="mt-3 pt-2 border-t border-neutral-700/30"
       >
         <UButton
           size="xs"

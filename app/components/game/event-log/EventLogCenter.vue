@@ -40,20 +40,20 @@ const getUnreadCount = (filterKey: GameEventFilter): number => {
   <div class="absolute inset-0 z-30 flex items-center justify-center p-8 overflow-hidden">
     <!-- Backdrop -->
     <div
-      class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
+      class="absolute inset-0 bg-neutral-950/80 backdrop-blur-sm"
       @click="emit('close')"
     />
 
     <!-- Panel -->
-    <div class="relative w-full max-w-3xl max-h-[calc(100%-4rem)] flex flex-col rounded-lg border border-cyan-500/30 bg-slate-900/95 shadow-lg shadow-cyan-500/10 overflow-hidden">
+    <div class="relative w-full max-w-3xl max-h-[calc(100%-4rem)] flex flex-col rounded-lg border border-info-500/30 bg-neutral-900/95 shadow-lg shadow-info-500/10 overflow-hidden">
       <!-- Header -->
-      <div class="flex items-center justify-between px-5 py-4 border-b border-slate-700/50">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-neutral-700/50">
         <div class="flex items-center gap-3">
           <UIcon
             name="i-lucide-scroll-text"
-            class="w-5 h-5 text-cyan-400"
+            class="w-5 h-5 text-info-400"
           />
-          <h2 class="text-lg font-semibold text-slate-100">
+          <h2 class="text-lg font-semibold text-neutral-100">
             {{ $t('game.event-log.title') }}
           </h2>
         </div>
@@ -79,7 +79,7 @@ const getUnreadCount = (filterKey: GameEventFilter): number => {
       </div>
 
       <!-- Filter Bar -->
-      <div class="flex items-center gap-2 px-5 py-3 border-b border-slate-700/50 overflow-x-auto overflow-y-hidden">
+      <div class="flex items-center gap-2 px-5 py-3 border-b border-neutral-700/50 overflow-x-auto overflow-y-hidden">
         <div
           v-for="filter in filterOptions"
           :key="filter.key"
@@ -97,7 +97,7 @@ const getUnreadCount = (filterKey: GameEventFilter): number => {
           <!-- Unread Badge -->
           <span
             v-if="getUnreadCount(filter.key) > 0"
-            class="absolute -top-1 -right-1 flex items-center justify-center min-w-4 h-4 px-1 text-[10px] font-bold text-slate-950 bg-cyan-400 rounded-full"
+            class="absolute -top-1 -right-1 flex items-center justify-center min-w-4 h-4 px-1 text-[10px] font-bold text-neutral-950 bg-info-400 rounded-full"
           >
             {{ getUnreadCount(filter.key) }}
           </span>
@@ -113,9 +113,9 @@ const getUnreadCount = (filterKey: GameEventFilter): number => {
             class="space-y-3"
           >
             <!-- Year Header -->
-            <div class="flex items-center gap-2 text-sm text-slate-400">
+            <div class="flex items-center gap-2 text-sm text-neutral-400">
               <span class="font-mono">{{ year }}</span>
-              <div class="flex-1 h-px bg-slate-700/50" />
+              <div class="flex-1 h-px bg-neutral-700/50" />
             </div>
 
             <!-- Events -->
@@ -135,7 +135,7 @@ const getUnreadCount = (filterKey: GameEventFilter): number => {
         <!-- Empty State -->
         <div
           v-else
-          class="flex flex-col items-center justify-center py-12 text-slate-500"
+          class="flex flex-col items-center justify-center py-12 text-neutral-500"
         >
           <UIcon
             name="i-lucide-inbox"

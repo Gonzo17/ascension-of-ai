@@ -132,7 +132,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="relative h-full min-h-[78vh] overflow-hidden rounded-xl border border-slate-800 bg-linear-to-br from-slate-950 via-slate-900 to-black shadow-2xl">
+  <div class="relative h-full min-h-[78vh] overflow-hidden border border-neutral-800 bg-linear-to-br from-neutral-950 via-neutral-900 to-black shadow-2xl">
     <UButton
       v-if="viewMode === 'system'"
       :color="'primary'"

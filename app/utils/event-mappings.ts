@@ -22,10 +22,10 @@ export const eventTypeIcons: Record<GameEventType, string> = {
 }
 
 export const eventSeverityColors: Record<GameEventSeverity, string> = {
-  info: 'text-cyan-400',
-  success: 'text-emerald-400',
-  warning: 'text-amber-400',
-  critical: 'text-rose-400'
+  info: 'text-info-400',
+  success: 'text-success-400',
+  warning: 'text-warning-400',
+  critical: 'text-critical-400'
 }
 
 export interface SeverityStyle {
@@ -36,23 +36,23 @@ export interface SeverityStyle {
 
 export const eventSeverityStyles: Record<GameEventSeverity, SeverityStyle> = {
   info: {
-    border: 'border-cyan-500/50',
-    glow: 'shadow-cyan-500/20',
-    icon: 'text-cyan-400'
+    border: 'border-info-500/50',
+    glow: 'shadow-info-500/20',
+    icon: 'text-info-400'
   },
   success: {
-    border: 'border-emerald-500/50',
-    glow: 'shadow-emerald-500/20',
-    icon: 'text-emerald-400'
+    border: 'border-success-500/50',
+    glow: 'shadow-success-500/20',
+    icon: 'text-success-400'
   },
   warning: {
-    border: 'border-amber-500/50',
-    glow: 'shadow-amber-500/20',
-    icon: 'text-amber-400'
+    border: 'border-warning-500/50',
+    glow: 'shadow-warning-500/20',
+    icon: 'text-warning-400'
   },
   critical: {
-    border: 'border-rose-500/50',
-    glow: 'shadow-rose-500/20',
-    icon: 'text-rose-400'
+    border: 'border-critical-500/50',
+    glow: 'shadow-critical-500/20',
+    icon: 'text-critical-400'
   }
 }
